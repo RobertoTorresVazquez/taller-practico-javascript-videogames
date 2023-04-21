@@ -43,3 +43,5 @@ function setCanvasSize (){
             
     });
     console.log(arreglo)
+
+    
