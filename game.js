@@ -4,10 +4,22 @@ const $btnUp = document.getElementById("up");
 const $btnDown = document.getElementById("down");
 const $btnLeft = document.getElementById("left");
 const $btnRight = document.getElementById("right");
+const $spanLives = document.getElementById("lives");
+const $spanTime = document.getElementById("time");
+
 
 let canvasSize;
 let elementsSize;
 let level = 0;
+let lives = 3;
+
+let timeStart;
+let timePlayer;
+let timeInterval;
+
+
+
+
 const playerPosition = {
     x: undefined,
     y: undefined
@@ -51,12 +63,20 @@ function startGame (){
     const map = maps[level];    
     if(!map){
         gameWin()
-        return
+       return
     }
+
+    if(!timeStart){
+        timeStart = Date.now();
+        timeInterval = setInterval(showTime, 100)
+    }
+
     const mapRows = map.trim().split("\n");
     const mapRowCols = mapRows.map(elemento => elemento.trim(). split(""))
     //console.log (mapRows)
-    console.log(mapRowCols[0][0])
+    //console.log(mapRowCols[0][0])
+
+    showLives()
 
     enemyPositions = []
     game.clearRect(0, 0, canvasSize, canvasSize)
@@ -70,7 +90,7 @@ function startGame (){
                 if(!playerPosition.x && !playerPosition.y){
                     playerPosition.x = posX;
                     playerPosition.y = posY;
-                    console.log(playerPosition)
+                    //console.log(playerPosition)
                 }
             }else if (col === "I"){
                 giftPosition.x = posX;
@@ -108,7 +128,9 @@ function movePlayer (){
         
     });
     if(enemyCollision){
-        console.log("chocaste con enemigo")
+        levelFail()
+        
+        
         }
     
 
@@ -117,15 +139,42 @@ function movePlayer (){
     game.fillText(emojis["PLAYER"], playerPosition.x, playerPosition.y)
 }
 
+
+
 function levelWin(){
     console.log("Subiste nivel")
     level ++
     startGame()
 }
-function gameWin(){
-    alert("Ganaste")
+function levelFail(){
+    console.log("lo lamento empieza de nuevo");
+    lives--;
+    
+    if(lives <= 0){
+        level = 0;
+        lives = 3;
+        //timeStart = undefined
+   }  
+   
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
+    startGame()
 }
 
+function gameWin(){
+    clearInterval(timeInterval)
+    console.log("Terminaste el juego")
+}
+
+function showLives(){
+   const heartsArray = Array(lives).fill(emojis["HEART"])
+    $spanLives.innerHTML = "";
+    heartsArray.forEach (heart => $spanLives.append(heart))
+}
+
+function showTime (){
+    $spanTime.innerHTML = Date.now() - timeStart
+}
 window.addEventListener("keydown", moveByKeys)
 $btnUp.addEventListener("click", moveUp);
 $btnDown.addEventListener("click", moveDown);
@@ -182,6 +231,8 @@ function moveRight(){
     
 };
 
+
+  
     //game.font = "25px Arial";
     //game.fillStyle = "purple";
     //game.textAlign = "center";//Toma con referencia la posición del .fillText
