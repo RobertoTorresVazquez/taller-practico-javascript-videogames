@@ -6,6 +6,10 @@ const $btnLeft = document.getElementById("left");
 const $btnRight = document.getElementById("right");
 const $spanLives = document.getElementById("lives");
 const $spanTime = document.getElementById("time");
+const $record = document.getElementById("record");
+const $resultado = document.getElementById("result")
+
+
 
 
 let canvasSize;
@@ -42,12 +46,19 @@ window.addEventListener("resize", setCanvasSize)
 function setCanvasSize (){
     if(window.innerHeight > window.innerWidth){
         canvasSize = window.innerWidth * 0.8;
+        //canvasSize = Number((window.innerWidth * 0.8).toFixed(4))
     }else {
         canvasSize = window.innerHeight * 0.8;
+        //canvasSize = Number((window.innerHeight * 0.8).toFixed(4))
     }
+
+    //canvasSize = Number(canvasSize.toFixed(2));
 
     $canvas.setAttribute("width", canvasSize)
     $canvas.setAttribute("height", canvasSize)
+
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
 
     elementsSize = canvasSize / 10;
     startGame()
@@ -69,6 +80,7 @@ function startGame (){
     if(!timeStart){
         timeStart = Date.now();
         timeInterval = setInterval(showTime, 100)
+        showRecord()
     }
 
     const mapRows = map.trim().split("\n");
@@ -122,8 +134,8 @@ function movePlayer (){
     }
 
     const enemyCollision = enemyPositions.find(enemy =>{
-        const enemyCollisionX = enemy.x.toFixed(3) === playerPosition.x.toFixed(3);
-        const enemyCollisionY = enemy.y.toFixed(3) === playerPosition.y.toFixed(3);
+        const enemyCollisionX = enemy.x.toFixed(4) === playerPosition.x.toFixed(4);
+        const enemyCollisionY = enemy.y.toFixed(4) === playerPosition.y.toFixed(4);
         return enemyCollisionX && enemyCollisionY;
         
     });
@@ -134,8 +146,8 @@ function movePlayer (){
         }
     
 
-    game.font = elementsSize*.8 + "px Verdana";
-    game.textAlign = "end";
+    //game.font = elementsSize*.8 + "px Verdana";
+    //game.textAlign = "end";
     game.fillText(emojis["PLAYER"], playerPosition.x, playerPosition.y)
 }
 
@@ -153,7 +165,7 @@ function levelFail(){
     if(lives <= 0){
         level = 0;
         lives = 3;
-        //timeStart = undefined
+        timeStart = undefined
    }  
    
     playerPosition.x = undefined;
@@ -162,8 +174,26 @@ function levelFail(){
 }
 
 function gameWin(){
-    clearInterval(timeInterval)
     console.log("Terminaste el juego")
+    clearInterval(timeInterval);
+
+
+    const recordTime = localStorage.getItem("record_time");
+    
+    const playerTime = Date.now()- timeStart;
+    if(recordTime){
+        
+        if(recordTime >= playerTime){
+            localStorage.setItem("record_time", playerTime);
+            $resultado.innerHTML =`Tu tiempo fué ${playerTime} Superaste el Record!!!`;
+        }else {
+            $resultado.innerHTML =`Tu tiempo fué ${playerTime} Lo sentimos no superaste el Reto`;
+        }
+    }else {
+        localStorage.setItem("record_time", playerTime)
+    }
+    
+    console.log(recordTime, playerTime)
 }
 
 function showLives(){
@@ -174,6 +204,10 @@ function showLives(){
 
 function showTime (){
     $spanTime.innerHTML = Date.now() - timeStart
+}
+
+function showRecord (){
+    $record.innerHTML = localStorage.getItem("record_time")
 }
 window.addEventListener("keydown", moveByKeys)
 $btnUp.addEventListener("click", moveUp);
@@ -191,7 +225,7 @@ function moveByKeys(event){
 
 };
 function moveUp(){
-    console.log("hacia arriba")
+    //console.log("hacia arriba")
     if((playerPosition.y - elementsSize)< elementsSize){
         console.log("out")
     }else{
@@ -201,7 +235,7 @@ function moveUp(){
     
 };
 function moveDown(){
-    console.log("hacia abajo")
+    //console.log("hacia abajo")
     if((playerPosition.y + elementsSize) > canvasSize){
         console.log("out")
     }else {
@@ -211,7 +245,7 @@ function moveDown(){
     
 };
 function moveLeft(){
-    console.log("hacia la izquierda")
+    //console.log("hacia la izquierda")
     if((playerPosition.x - elementsSize) < elementsSize){
         console.log("out")
     }else{
@@ -221,7 +255,7 @@ function moveLeft(){
     
 };
 function moveRight(){
-    console.log("hacia la derecha")
+    //console.log("hacia la derecha")
     if((playerPosition.x + elementsSize) > canvasSize){
         console.log("out");
     }else {
